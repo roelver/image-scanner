@@ -23,6 +23,7 @@ So this is how it works.
 	- Finally the image is deleted from the local server.
 
 Download this repo:
+
 	 $ git clone https://github.com/roelver/image-scanner.git
 	 $ cd image-scanner
 
