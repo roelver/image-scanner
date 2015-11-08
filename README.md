@@ -22,7 +22,9 @@ So this is how it works.
 	- The analyzer will scan all pixels for being pink enough and updates a progress bar and a 'pinkness' bar.
 	- Finally the image is deleted from the local server.
 
-
+Download this repo:
+	 $ git clone https://github.com/roelver/image-scanner.git
+	 $ cd image-scanner
 
 How to install dependencies:
 
@@ -35,14 +37,3 @@ How to start:
 Open [http://localhost:8080](http://localhost:8080)
 
 
-
-CLI based generic server:
-----------
-
-Install as a global module
-
-    $ sudo npm install -g spadin/simple-express-static-server
-
-Serve a directory
-
-    $ simple-server my/public/dir
