@@ -4,9 +4,9 @@ Pinkness scanner
 Description
 -----------
 
-This project is part of a [http://www.freecodecamp.com/challenges/basejump-build-a-pinterest-clone](Freecodecamp.com basejump) assignment I'm working on. My idea was to create Pinkerest, the lrgest collection of (mostly) pink images in the world. When it is completed I will add a link here.
+This project is part of a [Freecodecamp.com basejump](http://www.freecodecamp.com/challenges/basejump-build-a-pinterest-clone) assignment I'm working on. My idea was to create Pinkerest, the lrgest collection of (mostly) pink images in the world. When it is completed I will add a link here.
 
-In this project I will focus on scanning an image on it's pinkness. To process an image in JavaScript, it has to be loaded on an HTML canvas. From there scanning the image is pretty simple. Unfortunately, the modern browsers do not allow images from other websites to be loaded on an canvas. This restriction is called 'Cross-Origin resource sharing' (CORS). Read all about it on [https://en.wikipedia.org/wiki/Cross-origin_resource_sharing](Wikipedia).
+In this project I will focus on scanning an image on it's pinkness. To process an image in JavaScript, it has to be loaded on an HTML canvas. From there scanning the image is pretty simple. Unfortunately, the modern browsers do not allow images from other websites to be loaded on an canvas. This restriction is called 'Cross-Origin resource sharing' (CORS). Read all about it on [Wikipedia](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing).
 
 To bypass the CORS restriction, an image must be loaded from the same origin (server) as the Javascript file that is processing the image. There is an escape for this when the server publishes an HTTP header Access-Control-Allow-Origin: *, but I don't expect I can convince all potential image sources to enable this feature. So I had to go for the same origin option. This project is set to be an example for developers that need to scan images in Javascript. If someone knows an easier way to get this done, please let me know.
 
