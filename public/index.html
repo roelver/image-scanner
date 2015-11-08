@@ -1,0 +1,173 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Test page image analyzing</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <input id="imgUrl" class="col-md-12" placeholder="Enter the image URL"/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="img-container"> 
+           <img id="newPink"/> 
+        </div>
+      </div>
+      <div class="row">
+        <label for="progressbar">Progress</label>
+        <div class="progress">
+          <div id="progressbar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <label for="pinkbar">Pinkness</label>
+        <div class="progress">
+          <div id="pinkbar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+          </div>
+        </div>
+      </div>
+      <div class="row">
+         <button id="analyzeBtn" class="btn btn-info">Analyze</button>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>    
+
+    <script>
+       $(function() {
+
+          $("#analyzeBtn").prop('disabled', true);
+
+          $("#analyzeBtn").on('click', function(event, data) {
+              analyze( $("#imgUrl").val());
+          });
+
+          $("#imgUrl").on('input',function() {
+              setImageSrc($(this).val());
+          });
+
+          $("#newPink").on('load', function () { 
+              $("#newPink").show(); 
+              $("#analyzeBtn").prop('disabled', false);
+          });
+
+          $("#newPink").error(function (event) { 
+              console.log('Error on newPink ', event);
+              $(this).hide(); 
+              $("#analyzeBtn").prop('disabled', true);
+          });
+
+        });
+
+       function setImageSrc(imgUrl) {
+          $("#newPink").attr("src", imgUrl);
+            updateProgress(0);
+            updatePink(0);
+       }
+
+       function updateProgress(val) {
+          $('#progressbar').attr("aria-valuenow", val);
+          $('#progressbar').attr("style", "width: "+val+"%");
+          $('#progressbar').html(val+"%");
+       }
+
+       function updatePink(val) {
+          $('#pinkbar').attr("aria-valuenow", val);
+          $('#pinkbar').attr("style", "width: "+val+"%");
+          $('#pinkbar').html(val+"%");
+       }
+
+        function loadedImg(fname) {
+            var img= document.getElementById("newPink");
+            img.style.display = "inline";
+
+            var canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            var ctx = canvas.getContext('2d');
+            updateProgress(0);
+            updatePink(0);
+
+            ctx.drawImage(img, 0, 0);
+    //         img.style.display = 'none';
+            var h = canvas.height;
+            var w = canvas.width;
+            console.log('Width:', w, 'Height:',h);
+            var imageData = ctx.getImageData(0,0,w, h);
+            var data = imageData.data;
+
+            var totalSize = w * h;
+            var pinkCounter = 0;
+            var perc = Math.floor(data.length/100);
+            var percCount = perc;
+
+            for (var i = 0; i < data.length; i += 4) {
+                  r = data[i]; // less red
+                  g = data[i+1]; // less green
+                  b = data[i+2]; // MORE BLUE
+                  if (r > 180 && b > 150 && g < b) {
+                   // console.log(i,r,g,b)
+                    pinkCounter++;
+                  }
+                  if (i > percCount) {
+                      percCount += perc;
+                      updateProgress(Math.ceil((i/data.length)*1000)/10);
+                      updatePink(Math.ceil((pinkCounter/totalSize)*1000)/10);
+                  }
+            }
+            updateProgress(100);
+            updatePink(Math.ceil((pinkCounter/totalSize)*1000)/10);
+
+            console.log('Pink%', (pinkCounter/totalSize)*100);
+            $("#analyzeBtn").prop('disabled', false);
+
+            // Delete the file from our local server
+            $.ajax({
+               url: '/img?' + $.param({"filename": fname}),
+               type: 'DELETE',
+               success: function(result) {
+                  console.log('Delete: ', result);
+                }
+            });
+
+        }
+
+
+
+       function analyze(url) {
+          console.log('MyUrl:', url);
+
+          /*
+           * To avoid CORS issues with loading the image data on a canvas
+           * the image is first stored on our server and the requested from
+           * our own server.
+           */
+
+          $.post("/store", {myurl: url}, function( filename ) {
+            console.log("Filename:", filename);
+
+            //  Replace the image by the same img from our local
+            setImageSrc('http://localhost:8080/img/'+filename);
+            setTimeout(loadedImg, 300, filename);
+        });
+      }
+
+    
+    </script>
+</body>
+</html>
