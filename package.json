@@ -22,7 +22,6 @@
     "body-parser": "^1.1.2",
     "errorhandler": "^1.0.1",
     "method-override": "^1.0.0",
-    "request": "*"
   },
   "bin": {
     "simple-server": "./start.js"
